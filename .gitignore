@@ -1,0 +1,58 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+*.egg
+*.pyo
+
+# Django
+*.log
+*.pot
+*.pyc
+*.sqlite3
+
+# Environments
+.env
+.env.*
+
+# Virtualenv
+.venv/
+venv/
+ENV/
+env/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# IDEs & editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*.DS_Store
+
+# Coverage/testing
+htmlcov/
+.coverage
+.tox/
+.nox/
+coverage.xml
+nosetests.xml
+test.db
+junit.xml
+
+# Build
+build/
+dist/
+*.bak
+*.tmp
+*.orig
+
+# Node (if you use any JS tools)
+node_modules/
+npm-debug.log
+
+# Docker
+*.pid
+*.pid.lock
+*.pidfile
