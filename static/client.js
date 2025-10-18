@@ -1,4 +1,5 @@
-const ws = new WebSocket(`ws://${window.location.host}/ws`);
+const protocol = window.location.protocol === "https:" ? "wss://" : "ws://";
+const ws = new WebSocket(`${protocol}${window.location.host}/ws`);
 const heart = document.getElementById("heart");
 const status = document.getElementById("status");
 const people = document.getElementById("people");
