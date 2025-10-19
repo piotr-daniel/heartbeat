@@ -5,6 +5,7 @@ let ws;
 let reconnectInterval = 3000;
 const heart = document.getElementById("heart");
 const status = document.getElementById("status");
+const info = document.getElementById("info");
 
 function connect() {
   ws = new WebSocket(wsUrl);
@@ -48,5 +49,9 @@ function pulse() {
 function flatline() {
   heart.style.opacity = "0.2";
 }
+
+heart.addEventListener('click', () => {
+  console.log('Clicked!');
+});
 
 connect();
