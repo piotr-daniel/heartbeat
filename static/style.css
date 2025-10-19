@@ -4,15 +4,20 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    text-align: center;
     height: 100vh;
     font-family: monospace;
     color: #ff004c;
     margin: 0;
 }
 
+#title {
+    font-size: 2rem;
+}
+
 #heart {
-    width: 100px;
-    height: 100px;
+    width: 10rem;
+    height: 10rem;
     border-radius: 50%;
     background: radial-gradient(circle, #ff004c 0%, #330010 70%);
     transition: transform 0.15s ease, opacity 2s ease;

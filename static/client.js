@@ -6,6 +6,7 @@ let reconnectInterval = 3000;
 const heart = document.getElementById("heart");
 const status = document.getElementById("status");
 const info = document.getElementById("info");
+const title = document.getElementById("title");
 
 function connect() {
   ws = new WebSocket(wsUrl);
@@ -20,6 +21,7 @@ function connect() {
       pulse();
       const bpm = (60 / data.interval).toFixed(0);
       status.innerText = `💓 ${bpm} bpm — ${data.active_clients} connected`;
+      title.style.color = "#ff004c";
     } else if (data.type === "flatline") {
       flatline();
       status.innerText = "— flatline —";
@@ -48,6 +50,7 @@ function pulse() {
 
 function flatline() {
   heart.style.opacity = "0.2";
+  title.style.color = "#888";
 }
 
 heart.addEventListener('click', () => {
