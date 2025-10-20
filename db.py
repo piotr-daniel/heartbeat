@@ -17,13 +17,13 @@ def get_connection():
     return psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
 
 
-def create_log(clients):
+def create_log(log_type: str, clients: int):
     try:
         conn = get_connection()
         cur = conn.cursor()
         cur.execute(
             "INSERT INTO logs (type, timestamp, no_of_clients) VALUES (%s, %s, %s) RETURNING id;",
-            ("connect", datetime.now(), clients)
+            (log_type, datetime.now(), clients)
         )
         log_id = cur.fetchone()["id"]
         print('new')

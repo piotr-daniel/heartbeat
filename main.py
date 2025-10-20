@@ -45,7 +45,7 @@ async def websocket_endpoint(ws: WebSocket):
 
     print(f"💓 Client connected ({len(active_clients)} total)")
     # await log_event("connect", len(active_clients))
-    await run_in_threadpool(db.create_log, len(active_clients))
+    await run_in_threadpool(db.create_log, "connect", len(active_clients))
 
     try:
         while True:
