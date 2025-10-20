@@ -20,7 +20,7 @@ function connect() {
     if (data.type === "heartbeat") {
       pulse();
       const bpm = (60 / data.interval).toFixed(0);
-      status.innerText = `💓 ${bpm} bpm — ${data.active_clients} connected`;
+      status.innerText = `💓 ${bpm} bpm — supported by ${data.active_clients} people`;
       title.style.color = "#ff004c";
     } else if (data.type === "flatline") {
       flatline();
@@ -45,7 +45,7 @@ function pulse() {
   setTimeout(() => {
     heart.style.transform = "scale(1)";
     heart.style.opacity = "0.8";
-  }, 150);
+  }, 200);
 }
 
 function flatline() {

@@ -1,9 +1,9 @@
 import asyncio
 import json
-import os
 import time
-from datetime import datetime
+import db
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi.concurrency import run_in_threadpool
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -44,7 +44,8 @@ async def websocket_endpoint(ws: WebSocket):
     alive = True
 
     print(f"💓 Client connected ({len(active_clients)} total)")
-    await log_event("connect", len(active_clients))
+    # await log_event("connect", len(active_clients))
+    await run_in_threadpool(db.create_log, len(active_clients))
 
     try:
         while True:
@@ -71,7 +72,7 @@ async def heartbeat_loop():
                 "active_clients": len(active_clients),
             }
             await broadcast(msg)
-            await log_event("beat", len(active_clients))
+            # await log_event("beat", len(active_clients))
         else:
             msg = {"type": "flatline"}
             await broadcast(msg)
