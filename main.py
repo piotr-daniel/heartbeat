@@ -18,14 +18,13 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT"],
+    allow_headers=["Content-Type", "Authorization"],
 )
 
 active_clients = set()
 beat_interval = 1.0
 alive = False
-log_file = "heartbeat_log.json"
 
 
 @app.get("/")
@@ -44,7 +43,6 @@ async def websocket_endpoint(ws: WebSocket):
     alive = True
 
     print(f"💓 Client connected ({len(active_clients)} total)")
-    # await log_event("connect", len(active_clients))
     await run_in_threadpool(db.create_log, "connect", len(active_clients))
 
     try:
@@ -53,9 +51,10 @@ async def websocket_endpoint(ws: WebSocket):
     except WebSocketDisconnect:
         active_clients.remove(ws)
         print(f"💔 Client disconnected ({len(active_clients)} left)")
-        await log_event("disconnect", len(active_clients))
+        await run_in_threadpool(db.create_log, "disconnect", len(active_clients))
         if not active_clients:
             alive = False
+            # TODO: update stats in db - need func
 
 
 async def heartbeat_loop():
@@ -72,7 +71,6 @@ async def heartbeat_loop():
                 "active_clients": len(active_clients),
             }
             await broadcast(msg)
-            # await log_event("beat", len(active_clients))
         else:
             msg = {"type": "flatline"}
             await broadcast(msg)
@@ -91,22 +89,12 @@ async def broadcast(message: dict):
         active_clients.discard(ws)
 
 
-async def log_event(event_type: str, clients: int):
-    """Append simple heartbeat log to file"""
-    event = {
-        "time": datetime.now().isoformat(),
-        "event": event_type,
-        "clients": clients,
-    }
-    with open(log_file, "a") as f:
-        f.write(json.dumps(event) + "\n")
-
-
 @app.on_event("startup")
 async def on_startup():
     """Start background heartbeat"""
     asyncio.create_task(heartbeat_loop())
     print("🚀 Heartbeat server started.")
+    await run_in_threadpool(db.create_log, "server started", len(active_clients))
 
 
 if __name__ == "__main__":
