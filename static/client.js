@@ -7,6 +7,7 @@ const heart = document.getElementById("heart");
 const status = document.getElementById("status");
 const info = document.getElementById("info");
 const title = document.getElementById("title");
+const max_clients = document.getElementById("max_clients");
 
 function connect() {
   ws = new WebSocket(wsUrl);
@@ -20,7 +21,8 @@ function connect() {
     if (data.type === "heartbeat") {
       pulse();
       const bpm = (60 / data.interval).toFixed(0);
-      status.innerText = `💓 ${bpm} bpm — supported by ${data.active_clients} people`;
+      status.innerText = `💓 ${bpm} bpm — currently observed by ${data.active_clients} people`;
+      max_clients.innerText = `${data.max_clients}`;
       title.style.color = "#ff004c";
     } else if (data.type === "flatline") {
       flatline();

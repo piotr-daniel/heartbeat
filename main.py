@@ -1,21 +1,24 @@
 import asyncio
 import json
 import time
-import db
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from db import init_db_pool, close_pool, get_stats, get_logs, create_log, update_stats
+from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
 from fastapi.concurrency import run_in_threadpool
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 
 app = FastAPI(title="Heartbeat Server", version="1.0")
+
+templates = Jinja2Templates(directory="templates")
 
 # Static + templates
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Allow local + deployed connections
 app.add_middleware(
-    CORSMiddleware,
+    CORSMiddleware,  # type: ignore
     allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT"],
@@ -25,13 +28,22 @@ app.add_middleware(
 active_clients = set()
 beat_interval = 1.0
 alive = False
+# stats_list = {s['name']: s['value'] for s in get_stats()}
 
 
-@app.get("/")
-async def get_index():
-    """Serve the main heartbeat page"""
-    with open("templates/index.html", "r") as f:
-        return HTMLResponse(f.read())
+@app.get("/", response_class=HTMLResponse)
+async def get_index(request: Request):
+    """
+    Serve the heartbeat page with live stats from the DB
+    """
+    stats = get_stats()
+    return templates.TemplateResponse(
+        "index.html",
+        {
+            "request": request,
+            "stats": stats
+        }
+    )
 
 
 @app.websocket("/ws")
@@ -43,7 +55,7 @@ async def websocket_endpoint(ws: WebSocket):
     alive = True
 
     print(f"💓 Client connected ({len(active_clients)} total)")
-    await run_in_threadpool(db.create_log, "connect", len(active_clients))
+    await run_in_threadpool(create_log, "connect", len(active_clients))
 
     try:
         while True:
@@ -51,10 +63,9 @@ async def websocket_endpoint(ws: WebSocket):
     except WebSocketDisconnect:
         active_clients.remove(ws)
         print(f"💔 Client disconnected ({len(active_clients)} left)")
-        await run_in_threadpool(db.create_log, "disconnect", len(active_clients))
+        await run_in_threadpool(create_log, "disconnect", len(active_clients))
         if not active_clients:
             alive = False
-            # TODO: update stats in db - need func
 
 
 async def heartbeat_loop():
@@ -62,17 +73,21 @@ async def heartbeat_loop():
     global beat_interval
     while True:
         if len(active_clients) > 1:
-            # smooth scaling: logarithmic feel
+            stats_list = get_stats()
+            if stats_list['max_clients'] < len(active_clients):
+                update_stats('max_clients', len(active_clients))
             beat_interval = max(0.4, 1.6 - 0.1 * min(len(active_clients), 12))
             msg = {
                 "type": "heartbeat",
                 "interval": beat_interval,
                 "timestamp": time.time(),
                 "active_clients": len(active_clients),
+                "max_clients": int(stats_list['max_clients']),
             }
             await broadcast(msg)
         else:
             msg = {"type": "flatline"}
+            # update_stats('number_of_deaths', 1)
             await broadcast(msg)
         await asyncio.sleep(beat_interval)
 
@@ -92,9 +107,15 @@ async def broadcast(message: dict):
 @app.on_event("startup")
 async def on_startup():
     """Start background heartbeat"""
+    init_db_pool()
     asyncio.create_task(heartbeat_loop())
     print("🚀 Heartbeat server started.")
-    await run_in_threadpool(db.create_log, "server started", len(active_clients))
+    await run_in_threadpool(create_log, "server started", len(active_clients))
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    close_pool()
 
 
 if __name__ == "__main__":
