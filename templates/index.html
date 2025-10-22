@@ -17,10 +17,11 @@
     <div id="status">Connecting...</div>
     <br>
     <div id="info">
-        <p>Highest number of observing: <span id="max_clients"></span></p>
+        <p>Heart's life: <span>{{ stats.heart_life }}</span></p>
+        <p>Highest Number of Observing: <span id="max_clients"></span></p>
+        <p>Total Visits: <span id="total_visits">{{ stats.total_visits }}</span></p>
         <p>Total Heart's Rebirths: <span id="number_of_births">{{ stats.number_of_births }}</span></p>
         <p>Total Heart's Deaths: <span id="number_of_deaths">{{ stats.number_of_deaths }}</span></p>
-        Heart life: {{ stats.heart_life }}
     </div>
 
     <script src="/static/client.js"></script>

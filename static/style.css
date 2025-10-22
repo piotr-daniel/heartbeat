@@ -11,6 +11,15 @@ body {
     margin: 0;
 }
 
+p {
+    font-size: 0.9rem;
+    color: #888;
+}
+
+span {
+    color: #ff004c;
+}
+
 #title {
     font-size: 2rem;
 }
@@ -26,6 +35,6 @@ body {
 
 #status {
     margin-top: 2rem;
-    font-size: 0.9rem;
+    font-size: 1rem;
     color: #888;
 }

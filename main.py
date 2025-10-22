@@ -37,6 +37,7 @@ async def get_index(request: Request):
     Serve the heartbeat page with live stats from the DB
     """
     stats = get_stats()
+    update_stats('total_visits', stats['total_visits'] + 1)
     return templates.TemplateResponse(
         "index.html",
         {
@@ -73,16 +74,18 @@ async def heartbeat_loop():
     global beat_interval
     while True:
         if len(active_clients) > 1:
-            stats_list = get_stats()
-            if stats_list['max_clients'] < len(active_clients):
+            stats = get_stats()
+            if stats['max_clients'] < len(active_clients):
                 update_stats('max_clients', len(active_clients))
+
             beat_interval = max(0.4, 1.6 - 0.1 * min(len(active_clients), 12))
             msg = {
                 "type": "heartbeat",
                 "interval": beat_interval,
                 "timestamp": time.time(),
                 "active_clients": len(active_clients),
-                "max_clients": int(stats_list['max_clients']),
+                "max_clients": int(stats['max_clients']),
+                "total_visits": int(stats['total_visits']),
             }
             await broadcast(msg)
         else:

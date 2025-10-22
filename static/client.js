@@ -8,6 +8,7 @@ const status = document.getElementById("status");
 const info = document.getElementById("info");
 const title = document.getElementById("title");
 const max_clients = document.getElementById("max_clients");
+const total_visits = document.getElementById("total_visits");
 
 function connect() {
   ws = new WebSocket(wsUrl);
@@ -23,6 +24,7 @@ function connect() {
       const bpm = (60 / data.interval).toFixed(0);
       status.innerText = `💓 ${bpm} bpm — currently observed by ${data.active_clients} people`;
       max_clients.innerText = `${data.max_clients}`;
+      total_visits.innerText = `${data.total_visits}`;
       title.style.color = "#ff004c";
     } else if (data.type === "flatline") {
       flatline();
