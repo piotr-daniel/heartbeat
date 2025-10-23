@@ -14,10 +14,12 @@
     <div id="heart"></div>
     <br>
     <br>
-    <div id="status">Connecting...</div>
+    <div id="status">
+        <p><span id="bpm"></span><span id="observers"></span></p>
+    </div>
     <br>
     <div id="info">
-        <p>Heart's life: <span>{{ stats.heart_life }}</span></p>
+        <p>Heart's life: <span id="heart_life">{{ stats.heart_life }}</span></p>
         <p>Highest Number of Observing: <span id="max_clients"></span></p>
         <p>Total Visits: <span id="total_visits">{{ stats.total_visits }}</span></p>
         <p>Total Heart's Rebirths: <span id="number_of_births">{{ stats.number_of_births }}</span></p>

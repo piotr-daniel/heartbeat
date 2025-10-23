@@ -33,6 +33,10 @@ span {
     opacity: 0.8;
 }
 
+#heart:hover {
+    cursor: pointer;
+}
+
 #status {
     margin-top: 2rem;
     font-size: 1rem;

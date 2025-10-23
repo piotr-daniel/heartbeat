@@ -9,12 +9,15 @@ const info = document.getElementById("info");
 const title = document.getElementById("title");
 const max_clients = document.getElementById("max_clients");
 const total_visits = document.getElementById("total_visits");
+const heart_life = document.getElementById("heart_life");
+const bpm = document.getElementById("bpm");
+const observers = document.getElementById("observers");
 
 function connect() {
   ws = new WebSocket(wsUrl);
 
   ws.onopen = () => {
-    status.innerText = "💓 Connected";
+    // status.innerText = "💓 Connected";
   };
 
   ws.onmessage = (event) => {
@@ -22,9 +25,12 @@ function connect() {
     if (data.type === "heartbeat") {
       pulse();
       const bpm = (60 / data.interval).toFixed(0);
-      status.innerText = `💓 ${bpm} bpm — currently observed by ${data.active_clients} people`;
+      // status.innerText = `bpm — currently observed by `;
+      bpm.innerText = `💓 ${bpm} bpm — currently observed by `;
+      observers.innerText = `${data.active_clients} people`;
       max_clients.innerText = `${data.max_clients}`;
       total_visits.innerText = `${data.total_visits}`;
+      heart_life.innerText = `${data.heart_life}`;
       title.style.color = "#ff004c";
     } else if (data.type === "flatline") {
       flatline();
@@ -58,7 +64,13 @@ function flatline() {
 }
 
 heart.addEventListener('click', () => {
-  console.log('Clicked!');
+  fetch("/update-stat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name: "heart_life", value: 60 }),
+    })
+  .then(res => res.json())
+  .then(console.log);
 });
 
 connect();

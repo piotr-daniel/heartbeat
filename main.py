@@ -1,7 +1,7 @@
 import asyncio
 import json
 import time
-from db import init_db_pool, close_pool, get_stats, get_logs, create_log, update_stats
+from db import init_db_pool, close_pool, get_stats, get_logs, create_log, update_stats, datetime
 from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
 from fastapi.concurrency import run_in_threadpool
 from fastapi.middleware.cors import CORSMiddleware
@@ -47,6 +47,17 @@ async def get_index(request: Request):
     )
 
 
+@app.post("/update-stat")
+async def update_stat(request: Request):
+    stats = get_stats()
+    data = await request.json()
+    name = data["name"]
+    value = data["value"]
+    update_stats(name, stats[name]+value)
+    print(f"Updating {name} → {value}")
+    return {"status": "ok"}
+
+
 @app.websocket("/ws")
 async def websocket_endpoint(ws: WebSocket):
     """Handle WebSocket connections"""
@@ -86,6 +97,7 @@ async def heartbeat_loop():
                 "active_clients": len(active_clients),
                 "max_clients": int(stats['max_clients']),
                 "total_visits": int(stats['total_visits']),
+                "heart_life": int(stats['heart_life']),
             }
             await broadcast(msg)
         else:
@@ -119,6 +131,13 @@ async def on_startup():
 @app.on_event("shutdown")
 async def shutdown_event():
     close_pool()
+
+
+def timestamp_to_date(value, fmt="%Y-%m-%d"):
+    return datetime.fromtimestamp(value).strftime(fmt)
+
+
+templates.env.filters["timestamp_to_date"] = timestamp_to_date
 
 
 if __name__ == "__main__":
