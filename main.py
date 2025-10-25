@@ -92,7 +92,7 @@ async def heartbeat_loop():
                 update_stats('max_clients', len(active_clients))
 
             beat_interval = max(0.4, 1.6 - 0.1 * min(len(active_clients), 12))
-            update_stats("heart_life", stats["heart_life"] - int(beat_interval * 2))
+            update_stats("heart_life", stats["heart_life"] - 1)
             stats['heart_life'] = (datetime.now() + timedelta(seconds=int(stats['heart_life']))).strftime(
                 "%d %B %Y - %H:%M:%S")
             msg = {
