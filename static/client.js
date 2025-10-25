@@ -10,7 +10,7 @@ const title = document.getElementById("title");
 const max_clients = document.getElementById("max_clients");
 const total_visits = document.getElementById("total_visits");
 const heart_life = document.getElementById("heart_life");
-const bpm = document.getElementById("bpm");
+const beats = document.getElementById("beats");
 const observers = document.getElementById("observers");
 
 function connect() {
@@ -25,13 +25,11 @@ function connect() {
     if (data.type === "heartbeat") {
       pulse();
       const bpm = (60 / data.interval).toFixed(0);
-      // status.innerText = `bpm — currently observed by `;
-      bpm.innerText = `💓 ${bpm} bpm — currently observed by `;
-      observers.innerText = `${data.active_clients} people`;
+      beats.innerText = `💓 ${bpm} bpm`;
+      observers.innerText = `${data.active_clients}`;
       max_clients.innerText = `${data.max_clients}`;
       total_visits.innerText = `${data.total_visits}`;
       heart_life.innerText = `${data.heart_life}`;
-      title.style.color = "#ff004c";
     } else if (data.type === "flatline") {
       flatline();
       status.innerText = "— flatline —";

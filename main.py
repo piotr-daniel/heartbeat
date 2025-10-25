@@ -1,7 +1,7 @@
 import asyncio
 import json
 import time
-from db import init_db_pool, close_pool, get_stats, get_logs, create_log, update_stats, datetime
+from db import init_db_pool, close_pool, get_stats, get_logs, create_log, update_stats, datetime, timedelta
 from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
 from fastapi.concurrency import run_in_threadpool
 from fastapi.middleware.cors import CORSMiddleware
@@ -28,7 +28,6 @@ app.add_middleware(
 active_clients = set()
 beat_interval = 1.0
 alive = False
-# stats_list = {s['name']: s['value'] for s in get_stats()}
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -37,6 +36,8 @@ async def get_index(request: Request):
     Serve the heartbeat page with live stats from the DB
     """
     stats = get_stats()
+    stats['heart_life'] = (datetime.now() + timedelta(seconds=int(stats['heart_life']))).strftime(
+                "%d %B %Y - %H:%M:%S")
     update_stats('total_visits', stats['total_visits'] + 1)
     return templates.TemplateResponse(
         "index.html",
@@ -90,6 +91,9 @@ async def heartbeat_loop():
                 update_stats('max_clients', len(active_clients))
 
             beat_interval = max(0.4, 1.6 - 0.1 * min(len(active_clients), 12))
+            update_stats("heart_life", stats["heart_life"] - int(beat_interval * 2))
+            stats['heart_life'] = (datetime.now() + timedelta(seconds=int(stats['heart_life']))).strftime(
+                "%d %B %Y - %H:%M:%S")
             msg = {
                 "type": "heartbeat",
                 "interval": beat_interval,
@@ -97,12 +101,11 @@ async def heartbeat_loop():
                 "active_clients": len(active_clients),
                 "max_clients": int(stats['max_clients']),
                 "total_visits": int(stats['total_visits']),
-                "heart_life": int(stats['heart_life']),
+                "heart_life": stats['heart_life'],
             }
             await broadcast(msg)
         else:
             msg = {"type": "flatline"}
-            # update_stats('number_of_deaths', 1)
             await broadcast(msg)
         await asyncio.sleep(beat_interval)
 
