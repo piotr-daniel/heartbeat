@@ -91,9 +91,11 @@ async def heartbeat_loop():
 
             if stats["heart_life"] <= 0 and alive:
                 update_stats('number_of_deaths', stats['number_of_deaths'] + 1)
+                update_stats('is_alive', 0)
                 alive = False
             elif stats["heart_life"] > 0 and not alive:
                 update_stats("'number_of_births", stats['number_of_births'] + 1)
+                update_stats('is_alive', 1)
                 alive = True
             else:
                 update_stats('heart_life', stats['heart_life'] - 1)
