@@ -28,7 +28,7 @@ app.add_middleware(
 
 active_clients = set()
 beat_interval = 1.0
-alive = False
+alive = True
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -65,8 +65,6 @@ async def websocket_endpoint(ws: WebSocket):
     """Handle WebSocket connections"""
     await ws.accept()
     active_clients.add(ws)
-    global alive
-    alive = True
 
     print(f"💓 Client connected ({len(active_clients)} total)")
     await run_in_threadpool(create_log, "connect", len(active_clients))
@@ -78,21 +76,30 @@ async def websocket_endpoint(ws: WebSocket):
         active_clients.remove(ws)
         print(f"💔 Client disconnected ({len(active_clients)} left)")
         await run_in_threadpool(create_log, "disconnect", len(active_clients))
-        if not active_clients:
-            alive = False
 
 
 async def heartbeat_loop():
     """Send pulse messages to all connected clients at interval"""
     global beat_interval
+    global alive
+
     while True:
         if len(active_clients) > 1:
             stats = get_stats()
             if stats['max_clients'] < len(active_clients):
                 update_stats('max_clients', len(active_clients))
 
+            if stats["heart_life"] <= 0 and alive:
+                update_stats('number_of_deaths', stats['number_of_deaths'] + 1)
+                alive = False
+            elif stats["heart_life"] > 0 and not alive:
+                update_stats("'number_of_births", stats['number_of_births'] + 1)
+                alive = True
+            else:
+                update_stats('heart_life', stats['heart_life'] - 1)
+
             beat_interval = max(0.4, 1.6 - 0.1 * min(len(active_clients), 12))
-            update_stats("heart_life", stats["heart_life"] - 1)
+            # update_stats("heart_life", stats["heart_life"] - 1)
             stats['heart_life'] = (datetime.now() + timedelta(seconds=int(stats['heart_life']))).strftime(
                 "%d %B %Y - %H:%M:%S")
             msg = {
