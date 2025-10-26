@@ -93,25 +93,24 @@ async def heartbeat_loop():
                 update_stats('number_of_deaths', stats['number_of_deaths'] + 1)
                 update_stats('is_alive', 0)
                 alive = False
-            elif stats["heart_life"] > 0 and not alive:
-                update_stats("'number_of_births", stats['number_of_births'] + 1)
+            if stats["heart_life"] > 0 and not alive:
+                update_stats('number_of_births', stats['number_of_births'] + 1)
                 update_stats('is_alive', 1)
                 alive = True
-            else:
-                update_stats('heart_life', stats['heart_life'] - 1)
 
             beat_interval = max(0.4, 1.6 - 0.1 * min(len(active_clients), 12))
-            # update_stats("heart_life", stats["heart_life"] - 1)
-            stats['heart_life'] = (datetime.now() + timedelta(seconds=int(stats['heart_life']))).strftime(
+            update_stats("heart_life", stats["heart_life"] - 2)
+            stats["heart_life"] = (datetime.now() + timedelta(seconds=int(stats["heart_life"]))).strftime(
                 "%d %B %Y - %H:%M:%S")
             msg = {
                 "type": "heartbeat",
                 "interval": beat_interval,
                 "timestamp": time.time(),
                 "active_clients": len(active_clients),
-                "max_clients": int(stats['max_clients']),
-                "total_visits": int(stats['total_visits']),
-                "heart_life": stats['heart_life'],
+                "max_clients": int(stats["max_clients"]),
+                "total_visits": int(stats["total_visits"]),
+                "number_of_births": int(stats["number_of_births"]),
+                "heart_life": stats["heart_life"],
             }
             await broadcast(msg)
         else:

@@ -9,6 +9,7 @@ const info = document.getElementById("info");
 const title = document.getElementById("title");
 const max_clients = document.getElementById("max_clients");
 const total_visits = document.getElementById("total_visits");
+const number_of_births = document.getElementById("number_of_births");
 const heart_life = document.getElementById("heart_life");
 const beats = document.getElementById("beats");
 const observers = document.getElementById("observers");
@@ -29,10 +30,11 @@ function connect() {
       observers.innerText = `${data.active_clients}`;
       max_clients.innerText = `${data.max_clients}`;
       total_visits.innerText = `${data.total_visits}`;
+      number_of_births.innerText = `${data.number_of_births}`;
       heart_life.innerText = `${data.heart_life}`;
     } else if (data.type === "flatline") {
       flatline();
-      status.innerText = "— flatline —";
+      status.innerText = "— The heart cannot be observed on its own —";
     }
   };
 
