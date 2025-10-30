@@ -3,7 +3,7 @@ import json
 import time
 from db import init_db_pool, close_pool, get_stats, get_logs, create_log, update_stats, get_connection
 from datetime import datetime, timedelta
-from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect, Response, status
 from fastapi.concurrency import run_in_threadpool
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse
