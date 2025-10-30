@@ -34,15 +34,9 @@ It’s a playful way to show off **Python, FastAPI, PostgreSQL, WebSockets, and 
 
 ## 🧩 Architecture Overview
 
-Browser (JS + WebSocket)
-|
-v
-FastAPI Routes (/add-life, /stats, /ws)
-|
-v
-Database Layer (psycopg2 / SQLAlchemy)
-|
-v
+Browser (JS + WebSocket) > 
+FastAPI Routes (/add-life, /stats, /ws) >
+Database Layer (psycopg2 / SQLAlchemy) >
 PostgreSQL (persistent stats)
 
 ---
@@ -52,8 +46,8 @@ PostgreSQL (persistent stats)
 ### 1️⃣ Clone the repo
 
 ```bash
-git clone https://github.com/yourusername/heartbeat-server.git
-cd heartbeat-server
+git clone https://github.com/piotr-daniel/heartbeat.git
+cd heartbeat
 ```
 
 ### 2️⃣ Create and activate a virtual environment
@@ -69,7 +63,7 @@ source venv/bin/activate  # or venv\Scripts\activate on Windows
 pip install -r requirements.txt
 ```
 
-### 1️⃣ Clone the repo
+### 4️⃣ Create .env
 
 ```bash
 DATABASE_URL=postgresql://user:password@host:port/dbname

@@ -38,6 +38,7 @@ async def health_check(request: Request):
     HEAD → headers only
     GET → full JSON response
     """
+    conn = None
     db_status = "ok"
     try:
         conn = get_connection()
