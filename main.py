@@ -31,8 +31,13 @@ beat_interval = 1.0
 alive = True
 
 
-@app.head("/health")
-async def health_head():
+@app.api_route("/health", methods=["GET", "HEAD"])
+async def health_check(request: Request):
+    """
+    Health check endpoint compatible with browsers and uptime services.
+    HEAD → headers only
+    GET → full JSON response
+    """
     db_status = "ok"
     try:
         conn = get_connection()
@@ -46,13 +51,25 @@ async def health_head():
 
     status_code = status.HTTP_200_OK if db_status == "ok" else status.HTTP_503_SERVICE_UNAVAILABLE
 
-    return Response(
-        headers={
-            "X-App-Status": "ok" if db_status == "ok" else "degraded",
-            "X-DB-Status": db_status,
-            "X-Timestamp": datetime.utcnow().isoformat() + "Z",
+    headers = {
+        "X-App-Status": "ok" if db_status == "ok" else "degraded",
+        "X-DB-Status": db_status,
+        "X-Timestamp": datetime.utcnow().isoformat() + "Z",
+    }
+
+    # Return headers only for HEAD
+    if request.method == "HEAD":
+        return Response(status_code=status_code, headers=headers)
+
+    # Return JSON for GET
+    return JSONResponse(
+        {
+            "status": headers["X-App-Status"],
+            "database": headers["X-DB-Status"],
+            "timestamp": headers["X-Timestamp"],
         },
         status_code=status_code,
+        headers=headers,
     )
 
 
