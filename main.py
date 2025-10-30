@@ -1,12 +1,12 @@
 import asyncio
 import json
 import time
-from db import init_db_pool, close_pool, get_stats, get_logs, create_log, update_stats
+from db import init_db_pool, close_pool, get_stats, get_logs, create_log, update_stats, get_connection
 from datetime import datetime, timedelta
 from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
 from fastapi.concurrency import run_in_threadpool
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
@@ -29,6 +29,31 @@ app.add_middleware(
 active_clients = set()
 beat_interval = 1.0
 alive = True
+
+
+@app.head("/health")
+async def health_head():
+    db_status = "ok"
+    try:
+        conn = get_connection()
+        with conn.cursor() as cur:
+            cur.execute("SELECT 1;")
+    except Exception:
+        db_status = "error"
+    finally:
+        if conn:
+            conn.close()
+
+    status_code = status.HTTP_200_OK if db_status == "ok" else status.HTTP_503_SERVICE_UNAVAILABLE
+
+    return Response(
+        headers={
+            "X-App-Status": "ok" if db_status == "ok" else "degraded",
+            "X-DB-Status": db_status,
+            "X-Timestamp": datetime.utcnow().isoformat() + "Z",
+        },
+        status_code=status_code,
+    )
 
 
 @app.get("/", response_class=HTMLResponse)
