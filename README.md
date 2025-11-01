@@ -35,7 +35,7 @@ It’s a playful way to show off **Python, FastAPI, PostgreSQL, WebSockets, and 
 ## 🧩 Architecture Overview
 
 Browser (JS + WebSocket) > 
-FastAPI Routes (/add-life, /stats, /ws) >
+FastAPI Routes (/update-stat, /health, /ws) >
 Database Layer (psycopg2 / SQLAlchemy) >
 PostgreSQL (persistent stats)
 
@@ -45,33 +45,33 @@ PostgreSQL (persistent stats)
 
 ### 1️⃣ Clone the repo
 
-```bash
+```
 git clone https://github.com/piotr-daniel/heartbeat.git
 cd heartbeat
 ```
 
 ### 2️⃣ Create and activate a virtual environment
 
-```bash
+```
 python -m venv venv
 source venv/bin/activate  # or venv\Scripts\activate on Windows
 ```
 
 ### 3️⃣ Install dependencies
 
-```bash
+```
 pip install -r requirements.txt
 ```
 
 ### 4️⃣ Create .env
 
-```bash
+```
 DATABASE_URL=postgresql://user:password@host:port/dbname
 ```
 
 ### 5️⃣ Run locally
 
-```bash
+```
 uvicorn app.main:app --reload
 ```
 
@@ -79,10 +79,20 @@ uvicorn app.main:app --reload
 
 ## 📚 Example Endpoints
 
-| Method | Endpoint    | Description                            |
-| ------ | ----------- | -------------------------------------- |
-| `GET`  | `/`         | Render the main heartbeat page         |
-| `POST` | `/add-life` | Add one minute to the heart’s lifetime |
-| `GET`  | `/stats`    | Fetch all stored stats                 |
-| `WS`   | `/ws`       | Real-time updates (optional)           |
-| `GET`  | `/health`   | Application health and database status |
+| Method | Endpoint    | Description                                      |
+| ------ | ----------- |--------------------------------------------------|
+| `GET`  | `/`         | Render the main heartbeat page                   |
+| `POST` | `/update-stat` | Example - add one minute to the heart’s lifetime |
+| `WS`   | `/ws`       | Real-time updates (optional)                     |
+| `GET`  | `/health`   | Application health and database status           |
+
+
+---
+
+
+## 💬 Final Notes
+
+This project started as a playful experiment but evolved into a living example of a full-stack, production-ready Python app.  
+If you’re exploring **FastAPI**, **WebSockets**, or **Render deployment**, this is a great starting point — and an invitation to build on it.
+
+⭐ If you found this project helpful or inspiring, consider giving it a star — it helps keep the heart beating!

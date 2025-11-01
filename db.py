@@ -5,7 +5,6 @@ from fastapi import HTTPException
 from psycopg2 import pool
 from psycopg2.extras import RealDictCursor
 
-# Load environment variables
 load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")
 
@@ -43,7 +42,6 @@ def release_connection(conn):
 
 
 # --- CRUD Functions ---
-
 def create_log(log_type: str, clients: int):
     """Insert a log entry into the logs table."""
     conn = None
@@ -127,7 +125,7 @@ def get_stats():
 
 
 def close_pool():
-    """Close all connections in the pool (useful on shutdown)."""
+    """Close all connections in the pool."""
     global db_pool
     if db_pool:
         db_pool.closeall()

@@ -18,7 +18,7 @@ function connect() {
   ws = new WebSocket(wsUrl);
 
   ws.onopen = () => {
-    // status.innerText = "💓 Connected";
+    status.innerText = "";
   };
 
   ws.onmessage = (event) => {
@@ -34,7 +34,7 @@ function connect() {
       heart_life.innerText = `${data.heart_life}`;
     } else if (data.type === "flatline") {
       flatline();
-      status.innerText = "— The heart cannot be observed on its own —";
+      status.innerText = "——— The heart is no longer beating ———";
     }
   };
 
@@ -52,6 +52,7 @@ function connect() {
 function pulse() {
   heart.style.transform = "scale(1.3)";
   heart.style.opacity = "1";
+  title.style.color = "#ff004c";
   setTimeout(() => {
     heart.style.transform = "scale(1)";
     heart.style.opacity = "0.8";

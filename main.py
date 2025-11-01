@@ -10,11 +10,10 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-app = FastAPI(title="Heartbeat Server", version="1.0")
+app = FastAPI(title="One More Minute", version="1.0")
 
 templates = Jinja2Templates(directory="templates")
 
-# Static + templates
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Allow local + deployed connections
@@ -35,8 +34,6 @@ alive = True
 async def health_check(request: Request):
     """
     Health check endpoint compatible with browsers and uptime services.
-    HEAD → headers only
-    GET → full JSON response
     """
     conn = None
     db_status = "ok"
@@ -55,14 +52,12 @@ async def health_check(request: Request):
     headers = {
         "X-App-Status": "ok" if db_status == "ok" else "degraded",
         "X-DB-Status": db_status,
-        "X-Timestamp": datetime.utcnow().isoformat() + "Z",
+        "X-Timestamp": datetime.now().isoformat() + "Z",
     }
 
-    # Return headers only for HEAD
     if request.method == "HEAD":
         return Response(status_code=status_code, headers=headers)
 
-    # Return JSON for GET
     return JSONResponse(
         {
             "status": headers["X-App-Status"],
@@ -99,7 +94,7 @@ async def update_stat(request: Request):
     name = data["name"]
     value = data["value"]
     update_stats(name, stats[name]+value)
-    print(f"Updating {name} → {value}")
+    print(f"Updating {name} -> {value}")
     return {"status": "ok"}
 
 
@@ -127,24 +122,23 @@ async def heartbeat_loop():
     global alive
 
     while True:
-        if len(active_clients) > 1:
+        if alive:
             stats = get_stats()
+
             if stats['max_clients'] < len(active_clients):
                 update_stats('max_clients', len(active_clients))
 
-            if stats["heart_life"] <= 0 and alive:
+            if stats["heart_life"] <= 0:
                 update_stats('number_of_deaths', stats['number_of_deaths'] + 1)
                 update_stats('is_alive', 0)
                 alive = False
-            if stats["heart_life"] > 0 and not alive:
-                update_stats('number_of_births', stats['number_of_births'] + 1)
-                update_stats('is_alive', 1)
-                alive = True
 
             beat_interval = max(0.4, 1.6 - 0.1 * min(len(active_clients), 12))
             update_stats("heart_life", stats["heart_life"] - 2)
+
             stats["heart_life"] = (datetime.now() + timedelta(seconds=int(stats["heart_life"]))).strftime(
                 "%d %B %Y - %H:%M:%S")
+
             msg = {
                 "type": "heartbeat",
                 "interval": beat_interval,
@@ -157,8 +151,13 @@ async def heartbeat_loop():
             }
             await broadcast(msg)
         else:
+            if stats["heart_life"] > 0:
+                update_stats('number_of_births', stats['number_of_births'] + 1)
+                update_stats('is_alive', 1)
+                alive = True
             msg = {"type": "flatline"}
             await broadcast(msg)
+
         await asyncio.sleep(beat_interval)
 
 
