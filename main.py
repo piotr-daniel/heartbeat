@@ -35,23 +35,9 @@ async def health_check(request: Request):
     """
     Health check endpoint compatible with browsers and uptime services.
     """
-    conn = None
-    db_status = "ok"
-    try:
-        conn = get_connection()
-        with conn.cursor() as cur:
-            cur.execute("SELECT 1;")
-    except Exception:
-        db_status = "error"
-    finally:
-        if conn:
-            conn.close()
-
-    status_code = status.HTTP_200_OK if db_status == "ok" else status.HTTP_503_SERVICE_UNAVAILABLE
-
+    status_code = status.HTTP_200_OK
     headers = {
-        "X-App-Status": "ok" if db_status == "ok" else "degraded",
-        "X-DB-Status": db_status,
+        "X-App-Status": status_code,
         "X-Timestamp": datetime.now().isoformat() + "Z",
     }
 
@@ -61,7 +47,6 @@ async def health_check(request: Request):
     return JSONResponse(
         {
             "status": headers["X-App-Status"],
-            "database": headers["X-DB-Status"],
             "timestamp": headers["X-Timestamp"],
         },
         status_code=status_code,
@@ -124,7 +109,6 @@ async def heartbeat_loop():
     while True:
         if alive:
             stats = get_stats()
-
             if stats['max_clients'] < len(active_clients):
                 update_stats('max_clients', len(active_clients))
 

@@ -1,5 +1,9 @@
 # 🫀 Heartbeat Server
 
+![Python](https://img.shields.io/badge/Python-3.13-blue)
+![FastAPI](https://img.shields.io/badge/FastAPI-async-green)
+![Status](https://img.shields.io/badge/Alive-💓-pink)
+
 ### A living, breathing FastAPI app that tracks its own life.
 
 This project is a quirky full-stack experiment that explores **state persistence, live updates, and time-based interactivity**.  
