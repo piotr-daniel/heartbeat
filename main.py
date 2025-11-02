@@ -3,7 +3,7 @@ import json
 import time
 from db import init_db_pool, close_pool, get_stats, get_logs, create_log, update_stats, get_connection
 from datetime import datetime, timedelta
-from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect, Response, status
+from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
 from fastapi.concurrency import run_in_threadpool
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse
@@ -31,27 +31,12 @@ alive = True
 
 
 @app.api_route("/health", methods=["GET", "HEAD"])
-async def health_check(request: Request):
+async def health_check():
     """
     Health check endpoint compatible with browsers and uptime services.
     """
-    status_code = status.HTTP_200_OK
-    headers = {
-        "X-App-Status": status_code,
-        "X-Timestamp": datetime.now().isoformat() + "Z",
-    }
 
-    if request.method == "HEAD":
-        return Response(status_code=status_code, headers=headers)
-
-    return JSONResponse(
-        {
-            "status": headers["X-App-Status"],
-            "timestamp": headers["X-Timestamp"],
-        },
-        status_code=status_code,
-        headers=headers,
-    )
+    return {"status": "200 ok", "timestamp": datetime.now().isoformat()}
 
 
 @app.get("/", response_class=HTMLResponse)
