@@ -18,7 +18,7 @@ function connect() {
   ws = new WebSocket(wsUrl);
 
   ws.onopen = () => {
-    status.innerText = "";
+    // status.innerText = "";
   };
 
   ws.onmessage = (event) => {

@@ -17,12 +17,13 @@
     <div id="status">
         <p><span id="beats"></span> - currently observed by <span id="observers"></span> people</p>
     </div>
-    <br>
     <div id="info">
-        <p>Heart's life: <span id="heart_life">{{ stats.heart_life }}</span></p>
+        <p>Heart's life date: <span id="heart_life">{{ stats.heart_life }}</span></p>
+        <p>(Click on heart to add another minute)</p>
         <p>Highest Number of Observing: <span id="max_clients">{{ stats.max_clients }}</span></p>
-        <p>Total Visits: <span id="total_visits">{{ stats.total_visits }}</span></p>
         <p>Total Heart's Rebirths: <span id="number_of_births">{{ stats.number_of_births }}</span></p>
+        <p>Total Visits: <span id="total_visits">{{ stats.total_visits }}</span></p>
+
     </div>
 
     <script src="/static/client.js"></script>
